@@ -45,14 +45,14 @@ static inline void a_and_64(volatile uint64_t *p, uint64_t v) { *p &= v; }
 
 static inline void a_or_64(volatile uint64_t *p, uint64_t v) { *p |= v; }
 
+static uintptr_t s_program_break = CKB_BRK_MIN;
 void *_sbrk(uintptr_t incr) {
-  static uintptr_t p = CKB_BRK_MIN;
-  if ((p + incr) > CKB_BRK_MAX) {
+  if ((s_program_break + incr) > CKB_BRK_MAX) {
     return (void *)-1;
   }
 
-  uintptr_t start = p;
-  p += incr;
+  uintptr_t start = s_program_break;
+  s_program_break += incr;
   return (void *)start;
 }
 
