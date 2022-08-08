@@ -118,21 +118,6 @@ static int bin_index_up(size_t x) {
   return bin_tab[x / 128 - 4] + 17;
 }
 
-#ifdef CKB_C_STDLIB_PRINTF
-int printf(const char *format, ...);
-void __dump_heap(void) {
-  int i;
-  for (i = 0; i < 64; i++) {
-    if (mal.bins[i].head != CKB_BIN_TO_CHUNK(i) && mal.bins[i].head) {
-      printf("bin %d: %p\n", i, mal.bins[i].head);
-      if (!(mal.binmap & 1ULL << i))
-        printf("missing from binmap!\n");
-    } else if (mal.binmap & 1ULL << i)
-      printf("binmap wrongly contains %d!\n", i);
-  }
-}
-#endif
-
 static void *__expand_heap(size_t *pn) {
   void *p = _sbrk(*pn);
   if (p == (void *)-1) {
