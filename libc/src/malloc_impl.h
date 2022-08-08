@@ -45,8 +45,13 @@ static inline void a_and_64(volatile uint64_t *p, uint64_t v) { *p &= v; }
 
 static inline void a_or_64(volatile uint64_t *p, uint64_t v) { *p |= v; }
 
-static uintptr_t s_program_break = CKB_BRK_MIN;
+static uintptr_t s_program_break = 0;
+
 void *_sbrk(uintptr_t incr) {
+  if (!s_program_break) {
+    s_program_break = CKB_BRK_MIN;
+    s_program_break += -s_program_break & (CKB_PAGE_SIZE - 1);
+  }
   if ((s_program_break + incr) > CKB_BRK_MAX) {
     return (void *)-1;
   }
@@ -119,10 +124,14 @@ static int bin_index_up(size_t x) {
 }
 
 static void *__expand_heap(size_t *pn) {
-  void *p = _sbrk(*pn);
+  size_t n = *pn;
+  n += -n & (CKB_PAGE_SIZE - 1);
+
+  void *p = _sbrk(n);
   if (p == (void *)-1) {
     return 0;
   }
+  *pn = n;
   return p;
 }
 
@@ -139,7 +148,6 @@ static struct chunk *expand_heap(size_t n) {
   p = __expand_heap(&n);
   if (!p)
     return 0;
-
   /* If not just expanding existing space, we need to make a
    * new sentinel chunk below the allocated space. */
   if (p != end) {
