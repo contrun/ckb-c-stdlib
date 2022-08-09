@@ -12,5 +12,6 @@ char *strcpy(char *restrict d, const char *restrict s);
 size_t strlen(const char *s);
 int strcmp(const char *l, const char *r);
 char *strstr(const char *, const char *);
+char *strchr (const char *, int);
 
 #endif /* CKB_C_STDLIB_STRING_H_ */

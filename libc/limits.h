@@ -86,7 +86,6 @@
 #define __LONG_LONG_MAX__ 9223372036854775807LL
 #endif
 
-#if __ISO_C_VISIBLE >= 1999
 /* Minimum and maximum values a `signed long long int' can hold.  */
 #undef LLONG_MIN
 #define LLONG_MIN (-LLONG_MAX - 1)
@@ -96,7 +95,6 @@
 /* Maximum value an `unsigned long long int' can hold.  (Minimum is 0).  */
 #undef ULLONG_MAX
 #define ULLONG_MAX (LLONG_MAX * 2ULL + 1)
-#endif
 
 #if __GNU_VISIBLE
 /* Minimum and maximum values a `signed long long int' can hold.  */
