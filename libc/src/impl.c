@@ -342,6 +342,14 @@ char *strchr(const char *s, int c) {
 	return *(unsigned char *)r == (unsigned char)c ? r : 0;
 }
 
+int strncmp(const char *_l, const char *_r, size_t n) {
+	const unsigned char *l=(void *)_l, *r=(void *)_r;
+	if (!n--) return 0;
+	for (; *l && *r && n && *l == *r ; l++, r++, n--);
+	return *l - *r;
+}
+
+
 #ifdef CKB_C_STDLIB_MALLOC
 #include "malloc_impl.h"
 #else
