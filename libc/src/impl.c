@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <limits.h>
 #include <locale.h>
+#include <setjmp.h>
 
 /*
  * The implementation here is based on musl-libc with modifications for our
@@ -1489,5 +1490,90 @@ int printf(const char *format, ...) { return 0; }
 int ckb_printf(const char *format, ...) { return 0; }
 
 #endif /* CKB_C_STDLIB_PRINTF */
+
+/* Copied from https://github.com/bminor/musl/blob/46d1c7801bb509e1097e8fadbaf359367fa4ef0b/src/setjmp/riscv64/setjmp.S */
+/* We need to use inline asm for easier compilation, https://stackoverflow.com/a/42358235. */
+/* We need __attribute__((naked)) to remove prolog and epilog, https://stackoverflow.com/a/42637729 */
+int setjmp(jmp_buf b) {
+  asm volatile("sd s0,    0(a0)\n"
+               "sd s1,    8(a0)\n"
+               "sd s2,    16(a0)\n"
+               "sd s3,    24(a0)\n"
+               "sd s4,    32(a0)\n"
+               "sd s5,    40(a0)\n"
+               "sd s6,    48(a0)\n"
+               "sd s7,    56(a0)\n"
+               "sd s8,    64(a0)\n"
+               "sd s9,    72(a0)\n"
+               "sd s10,   80(a0)\n"
+               "sd s11,   88(a0)\n"
+               "sd sp,    96(a0)\n"
+               "sd ra,    104(a0)\n"
+               "li a0, 0\n"
+               "ret\n"
+               );
+}
+
+int _setjmp(jmp_buf b) {
+  asm volatile("sd s0,    0(a0)\n"
+               "sd s1,    8(a0)\n"
+               "sd s2,    16(a0)\n"
+               "sd s3,    24(a0)\n"
+               "sd s4,    32(a0)\n"
+               "sd s5,    40(a0)\n"
+               "sd s6,    48(a0)\n"
+               "sd s7,    56(a0)\n"
+               "sd s8,    64(a0)\n"
+               "sd s9,    72(a0)\n"
+               "sd s10,   80(a0)\n"
+               "sd s11,   88(a0)\n"
+               "sd sp,    96(a0)\n"
+               "sd ra,    104(a0)\n"
+               "li a0, 0\n"
+               "ret\n"
+               );
+}
+
+void longjmp(jmp_buf b, int n) {
+  asm volatile("ld s0,    0(a0)\n"
+               "ld s1,    8(a0)\n"
+               "ld s2,    16(a0)\n"
+               "ld s3,    24(a0)\n"
+               "ld s4,    32(a0)\n"
+               "ld s5,    40(a0)\n"
+               "ld s6,    48(a0)\n"
+               "ld s7,    56(a0)\n"
+               "ld s8,    64(a0)\n"
+               "ld s9,    72(a0)\n"
+               "ld s10,   80(a0)\n"
+               "ld s11,   88(a0)\n"
+               "ld sp,    96(a0)\n"
+               "ld ra,    104(a0)\n"
+               "seqz a0, a1\n"
+               "add a0, a0, a1\n"
+               "ret\n"
+               );
+}
+
+void _longjmp(jmp_buf b, int n) {
+  asm volatile("ld s0,    0(a0)\n"
+               "ld s1,    8(a0)\n"
+               "ld s2,    16(a0)\n"
+               "ld s3,    24(a0)\n"
+               "ld s4,    32(a0)\n"
+               "ld s5,    40(a0)\n"
+               "ld s6,    48(a0)\n"
+               "ld s7,    56(a0)\n"
+               "ld s8,    64(a0)\n"
+               "ld s9,    72(a0)\n"
+               "ld s10,   80(a0)\n"
+               "ld s11,   88(a0)\n"
+               "ld sp,    96(a0)\n"
+               "ld ra,    104(a0)\n"
+               "seqz a0, a1\n"
+               "add a0, a0, a1\n"
+               "ret\n"
+               );
+}
 
 #endif  // __CKB_IMPL_INCLUDED__
