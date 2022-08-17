@@ -1585,4 +1585,16 @@ int strcoll (const char *l, const char *r) {
   return strcmp(l, r);
 }
 
+int *__errno_location(void)
+{
+  static int error = -1;
+  return &error;
+}
+
+char *strerror(int e)
+{
+  static char* errorstr = "There is an error";
+  return errorstr;
+}
+
 #endif  // __CKB_IMPL_INCLUDED__
