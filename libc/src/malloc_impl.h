@@ -1,6 +1,8 @@
 #ifndef CKB_C_STDLIB_MALLOC_H_
 #define CKB_C_STDLIB_MALLOC_H_
 
+#include "ckb_syscalls.h"
+
 #ifndef CKB_BRK_MIN
 extern char _end[]; /* _end is set in the linker */
 #define CKB_BRK_MIN ((uintptr_t)&_end)
