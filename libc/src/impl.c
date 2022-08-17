@@ -1576,4 +1576,9 @@ void _longjmp(jmp_buf b, int n) {
                );
 }
 
+int abs(int a)
+{
+  return a>0 ? a : -a;
+}
+
 #endif  // __CKB_IMPL_INCLUDED__

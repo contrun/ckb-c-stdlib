@@ -13,4 +13,6 @@ int rand(void);
 void *bsearch(const void *key, const void *base, size_t nel, size_t width,
               int (*cmp)(const void *, const void *));
 
+int abs (int);
+
 #endif /* CKB_C_STDLIB_STDLIB_H_ */
