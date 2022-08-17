@@ -22,6 +22,7 @@
 #include <locale.h>
 #include <setjmp.h>
 
+#include "mock_impl.h"
 /*
  * The implementation here is based on musl-libc with modifications for our
  * use case. The original musl-libc follows MIT license, thanks to the authors
