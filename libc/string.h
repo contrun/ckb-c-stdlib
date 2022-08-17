@@ -19,4 +19,6 @@ size_t strcspn (const char *, const char *);
 size_t strspn (const char *, const char *);
 void *memchr (const void *, int, size_t);
 
+int strcoll (const char *, const char *);
+
 #endif /* CKB_C_STDLIB_STRING_H_ */

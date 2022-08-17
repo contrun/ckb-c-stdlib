@@ -1581,4 +1581,8 @@ int abs(int a)
   return a>0 ? a : -a;
 }
 
+int strcoll (const char *l, const char *r) {
+  return strcmp(l, r);
+}
+
 #endif  // __CKB_IMPL_INCLUDED__
