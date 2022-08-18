@@ -18,6 +18,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <math.h>
 #include <limits.h>
 #include <locale.h>
 #include <setjmp.h>
@@ -1580,6 +1581,129 @@ void _longjmp(jmp_buf b, int n) {
 int abs(int a)
 {
   return a>0 ? a : -a;
+}
+
+double frexp(double x, int *e)
+{
+	union { double d; uint64_t i; } y = { x };
+	int ee = y.i>>52 & 0x7ff;
+
+	if (!ee) {
+		if (x) {
+			x = frexp(x*0x1p64, e);
+			*e -= 64;
+		} else *e = 0;
+		return x;
+	} else if (ee == 0x7ff) {
+		return x;
+	}
+
+	*e = ee - 0x3fe;
+	y.i &= 0x800fffffffffffffull;
+	y.i |= 0x3fe0000000000000ull;
+	return y.d;
+}
+
+double fmod(double x, double y)
+{
+	union {double f; uint64_t i;} ux = {x}, uy = {y};
+	int ex = ux.i>>52 & 0x7ff;
+	int ey = uy.i>>52 & 0x7ff;
+	int sx = ux.i>>63;
+	uint64_t i;
+
+	/* in the followings uxi should be ux.i, but then gcc wrongly adds */
+	/* float load/store to inner loops ruining performance and code size */
+	uint64_t uxi = ux.i;
+
+	if (uy.i<<1 == 0 || __builtin_isnan(y) || ex == 0x7ff)
+		return (x*y)/(x*y);
+	if (uxi<<1 <= uy.i<<1) {
+		if (uxi<<1 == uy.i<<1)
+			return 0*x;
+		return x;
+	}
+
+	/* normalize x and y */
+	if (!ex) {
+		for (i = uxi<<12; i>>63 == 0; ex--, i <<= 1);
+		uxi <<= -ex + 1;
+	} else {
+		uxi &= -1ULL >> 12;
+		uxi |= 1ULL << 52;
+	}
+	if (!ey) {
+		for (i = uy.i<<12; i>>63 == 0; ey--, i <<= 1);
+		uy.i <<= -ey + 1;
+	} else {
+		uy.i &= -1ULL >> 12;
+		uy.i |= 1ULL << 52;
+	}
+
+	/* x mod y */
+	for (; ex > ey; ex--) {
+		i = uxi - uy.i;
+		if (i >> 63 == 0) {
+			if (i == 0)
+				return 0*x;
+			uxi = i;
+		}
+		uxi <<= 1;
+	}
+	i = uxi - uy.i;
+	if (i >> 63 == 0) {
+		if (i == 0)
+			return 0*x;
+		uxi = i;
+	}
+	for (; uxi>>52 == 0; uxi <<= 1, ex--);
+
+	/* scale result */
+	if (ex > 0) {
+		uxi -= 1ULL << 52;
+		uxi |= (uint64_t)ex << 52;
+	} else {
+		uxi >>= -ex + 1;
+	}
+	uxi |= (uint64_t)sx << 63;
+	ux.i = uxi;
+	return ux.f;
+}
+
+double scalbn(double x, int n)
+{
+	union {double f; uint64_t i;} u;
+	double y = x;
+
+	if (n > 1023) {
+		y *= 0x1p1023;
+		n -= 1023;
+		if (n > 1023) {
+			y *= 0x1p1023;
+			n -= 1023;
+			if (n > 1023)
+				n = 1023;
+		}
+	} else if (n < -1022) {
+		/* make sure final n < -53 to avoid double
+		   rounding in the subnormal range */
+		y *= 0x1p-1022 * 0x1p53;
+		n += 1022 - 53;
+		if (n < -1022) {
+			y *= 0x1p-1022 * 0x1p53;
+			n += 1022 - 53;
+			if (n < -1022)
+				n = -1022;
+		}
+	}
+	u.i = (uint64_t)(0x3ff+n)<<52;
+	x = y * u.f;
+	return x;
+}
+
+double ldexp(double x, int n)
+{
+	return scalbn(x, n);
 }
 
 int strcoll (const char *l, const char *r) {
