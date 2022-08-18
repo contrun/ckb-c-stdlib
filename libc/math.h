@@ -57,6 +57,7 @@ double      fmod(double, double);
 double      frexp(double, int *);
 double      scalbn(double, int);
 double      ldexp(double, int);
+double      pow(double, double);
 
 #ifdef __cplusplus
 }
