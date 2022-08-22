@@ -1840,4 +1840,8 @@ const int32_t **__ctype_tolower_loc(void)
   return (void *)&ptable;
 }
 
+char *getenv(const char *name)
+{
+	return 0;
+}
 #endif  // __CKB_IMPL_INCLUDED__
