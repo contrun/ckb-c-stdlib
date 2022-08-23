@@ -11,8 +11,3 @@ double strtod(const char *restrict s, char **restrict p) {
 long double strtold(const char *restrict s, char **restrict p) {
   return strtox(s, p, 2);
 }
-
-double pow(double x, double y)
-{
-  return 0;
-}
