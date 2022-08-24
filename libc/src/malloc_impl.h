@@ -27,6 +27,7 @@ struct bin {
 #define CKB_OVERHEAD (2 * sizeof(size_t))
 #define CKB_DONTCARE 16
 #define CKB_RECLAIM 163840
+#define CKB_MMAP_THRESHOLD (0x1c00*CKB_SIZE_ALIGN)
 
 #define CKB_CHUNK_SIZE(c) ((c)->csize & -2)
 #define CKB_CHUNK_PSIZE(c) ((c)->psize & -2)
@@ -236,6 +237,11 @@ void *malloc(size_t n) {
 
   if (adjust_size(&n) < 0)
     return 0;
+
+  if (n >= CKB_MMAP_THRESHOLD) {
+    // TODO: don't support too large memory
+    return 0;
+  }
 
   i = bin_index_up(n);
   if (i < 63 && (mal.binmap & (1ULL << i))) {
