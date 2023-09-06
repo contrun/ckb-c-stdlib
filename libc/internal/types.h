@@ -19,4 +19,6 @@ typedef signed int int32_t;
 typedef unsigned long uint64_t;
 typedef signed long int64_t;
 
+typedef signed long ptrdiff_t;
+
 #endif  /* CKB_C_STDLIB_INTERNAL_TYPES_H_ */
